@@ -1,0 +1,61 @@
+services:
+  # PostgreSQL Citus Coordinator
+  coordinator:
+    image: citusdata/citus:latest
+    container_name: coordinator
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - citus_network
+    command: ["postgres", "-c", "citus.node_conninfo='host=worker1 port=5432', 'host=worker2 port=5432'"]
+
+  # PostgreSQL Citus Worker 1
+  worker1:
+    image: citusdata/citus:latest
+    container_name: worker1
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    networks:
+      - citus_network
+
+  # PostgreSQL Citus Worker 2
+  worker2:
+    image: citusdata/citus:latest
+    container_name: worker2
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    networks:
+      - citus_network
+      
+      
+  pgadmin:
+    image: registry.gitlab.com/armdev/dockers/pgadmin:4
+    container_name: pgadmin
+    restart: always
+    ports:
+      - "127.0.0.1:5050:80"
+    depends_on:
+      - coordinator
+      - worker1
+      - worker2 
+    links:
+      - coordinator
+      - worker1
+      - worker2     
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    volumes:
+      - ~/volumes/data/pgbackup/_data/pgadmin:/var/lib/pgadmin
+    networks:
+      - citus_network
+
+networks:
+  citus_network:
+    driver: bridge
+
