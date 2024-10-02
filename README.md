@@ -1,6 +1,4 @@
-Here's an improved and detailed `README.md` file for your Citus cluster setup, including necessary explanations, detailed steps, and additional comments.
 
----
 
 # Citus Cluster
 
